@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 填充的颜色 -->
+    <solid android:color="@color/colorPrimaryDark" />
+
+    <!-- 设置为圆形 -->
+    <size
+        android:height="50dp"
+        android:width="50dp" />
+    <corners android:radius="25dp"/>
+
+    <!-- 首字母与边界的间隔 -->
+    <padding
+        android:top="5dp"
+        android:right="5dp"
+        android:bottom="5dp"
+        android:left="5dp" />
+
+</shape>
