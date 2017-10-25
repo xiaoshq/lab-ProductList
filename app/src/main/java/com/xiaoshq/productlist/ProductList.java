@@ -1,6 +1,7 @@
 package com.xiaoshq.productlist;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -66,7 +67,10 @@ public class ProductList extends AppCompatActivity {
             this.clkListener = new mOnItemClickListener() {
                 @Override
                 public void onClick(int pos) {
-
+                    Intent it_item = new Intent();
+                    it_item.setClass(ProductList.this, ProductDetail.class);
+                    it_item.putExtra("itemid", dataID.get(pos));
+                    startActivity(it_item);
                 }
 
                 @Override
