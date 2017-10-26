@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/guideline"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="190dp"
+        app:layout_constraintGuide_begin="225dp"
         tools:layout_editor_absoluteY="190dp"
         tools:layout_editor_absoluteX="0dp" />
 
@@ -20,8 +20,8 @@
         android:id="@+id/detail_top"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
         android:layout_marginTop="8dp"
         android:background="@color/grey"
         app:layout_constraintHorizontal_bias="0.0"
@@ -123,32 +123,32 @@
 
         <Button
             android:id="@+id/add2car"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:layout_marginRight="15dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
             android:layout_alignParentEnd="true"
+            android:layout_marginBottom="17dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginTop="17dp"
             android:background="@drawable/shoplist" />
 
         <View
             android:id="@+id/cutlineShort"
             android:layout_width="2dp"
-            android:layout_height="40dp"
-            android:background="@color/line"
-            android:layout_marginTop="10dp"
-            android:layout_marginRight="15dp"
-            android:layout_toStartOf="@id/add2car" />
+            android:layout_height="36dp"
+            android:layout_marginBottom="17dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="17dp"
+            android:layout_toStartOf="@id/add2car"
+            android:background="@color/line" />
 
         <View
             android:id="@+id/cutlineLong"
             android:layout_width="match_parent"
             android:layout_height="2dp"
-            android:background="@color/line"
-            android:layout_marginTop="60dp"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
-             />
+            android:layout_marginTop="70dp"
+            android:background="@color/line" />
 
         <TextView
             android:id="@+id/moreInfo"
@@ -166,12 +166,9 @@
             android:id="@+id/cutlineWide"
             android:layout_width="match_parent"
             android:layout_height="30dp"
-            android:background="@color/line"
             android:layout_below="@id/moreInfo"
             android:layout_marginTop="10dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            />
+            android:background="@color/line" />
 
 
     </RelativeLayout>

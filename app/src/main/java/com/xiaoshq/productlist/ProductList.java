@@ -1,7 +1,10 @@
 package com.xiaoshq.productlist;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -12,6 +15,8 @@ import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,6 +29,8 @@ public class ProductList extends AppCompatActivity {
 
     public RecyclerView mRecyclerView;
     public ListView mListView;
+    public FloatingActionButton switchBTN;
+    public boolean isShoppingCar;//false-mainpage; true-shoplist
     public app mApp;
 
     @Override
@@ -31,17 +38,85 @@ public class ProductList extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.product_list);
 
+        mRecyclerView = (RecyclerView) findViewById(R.id.productList);
+        mListView = (ListView) findViewById(R.id.shoppingList);
+        mListView.setVisibility(View.GONE);
+        switchBTN = (FloatingActionButton) findViewById(R.id.listSwitch);
+        isShoppingCar = false;
         mApp = (app) getApplication();
-        mRecyclerView = (RecyclerView) findViewById(R.id.productLIst);
 
         mRecyclerViewAdapter rcAdapter = new mRecyclerViewAdapter(ProductList.this,
                 R.layout.product, new ArrayList<>(mApp.p_list.dataList),
                 new ArrayList<>(mApp.p_list.productID));
-        LinearLayoutManager leanerLayoutManager = new LinearLayoutManager(ProductList.this);
-        mRecyclerView.setLayoutManager(leanerLayoutManager);
-        leanerLayoutManager.setOrientation(OrientationHelper.VERTICAL);
+        LinearLayoutManager LLManager = new LinearLayoutManager(ProductList.this);
+        mRecyclerView.setLayoutManager(LLManager);
+        LLManager.setOrientation(OrientationHelper.VERTICAL);
         mRecyclerView.setAdapter(rcAdapter);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        final mListViewAdapter lvAdapter = new mListViewAdapter(ProductList.this,
+                mApp.s_list.dataList, mApp.s_list.productID);
+        mListView.setAdapter(lvAdapter);
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view,int pos, long id) {
+                if (pos != 0) {
+                    Intent intent = new Intent();
+                    intent.setClass(ProductList.this, ProductDetail.class);
+                    intent.putExtra("itemid", mApp.s_list.productID.get(pos));
+                    startActivity(intent);
+                }
+            }
+        });
+        mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view,
+                                           final int pos, long id) {
+                if(pos != 0) {
+                    AlertDialog.Builder ad_builder;
+                    ad_builder = new AlertDialog.Builder(ProductList.this);
+                    ad_builder
+                            .setTitle("移除商品")
+                            .setMessage("从购物车移除"
+                                    + mApp.s_list.dataList.get(pos).get("name").toString()
+                                    + "？")
+                            .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int i) {
+                                }
+                            })
+                            .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int i) {
+                                    mApp.s_list.dataList.remove(pos);
+                                    mApp.s_list.productID.remove(pos);
+                                    lvAdapter.notifyDataSetChanged();
+                                }
+                            }).create().show();
+                }
+                return true;
+            }
+        });
+
+
+        switchBTN.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (isShoppingCar == false) {//mainpage->shoplist
+                    isShoppingCar = true;
+                    mRecyclerView.setVisibility(View.GONE);
+                    mListView.setVisibility(View.VISIBLE);
+                    switchBTN.setImageResource(R.drawable.mainpage);
+                }
+                else if(isShoppingCar == true) {//shoplist->mainpage
+                    isShoppingCar = false;
+                    mListView.setVisibility(View.GONE);
+                    mRecyclerView.setVisibility(View.VISIBLE);
+                    switchBTN.setImageResource(R.drawable.shoplist);
+                }
+            }
+        });
+
     }
 
     public interface mOnItemClickListener {
@@ -57,20 +132,20 @@ public class ProductList extends AppCompatActivity {
         int layoutID;
         mOnItemClickListener clkListener;
 
-        public mRecyclerViewAdapter(Context ctx, int layoutID,
-                                    final ArrayList<Map<String,Object>> data, final ArrayList<Integer> dataID) {
-            this.context = ctx;
-            this.layoutID = layoutID;
-            this.data = data;
-            this.dataID = dataID;
+        public mRecyclerViewAdapter(Context ctx, int layoutId,
+                                    final ArrayList<Map<String,Object>> _data, final ArrayList<Integer> dataId) {
+            context = ctx;
+            layoutID = layoutId;
+            data = _data;
+            dataID = dataId;
 
             this.clkListener = new mOnItemClickListener() {
                 @Override
                 public void onClick(int pos) {
-                    Intent it_item = new Intent();
-                    it_item.setClass(ProductList.this, ProductDetail.class);
-                    it_item.putExtra("itemid", dataID.get(pos));
-                    startActivity(it_item);
+                    Intent intent = new Intent();
+                    intent.setClass(ProductList.this, ProductDetail.class);
+                    intent.putExtra("itemid", dataID.get(pos));
+                    startActivity(intent);
                 }
 
                 @Override
@@ -79,7 +154,8 @@ public class ProductList extends AppCompatActivity {
                     data.remove(pos);
                     notifyItemRemoved(pos);
                     notifyItemRangeChanged(pos, data.size());
-                    Toast.makeText(context, "移除第" + pos + "个商品", Toast.LENGTH_SHORT).show();
+                    int realpos = pos + 1;
+                    Toast.makeText(context, "移除第" + realpos + "个商品", Toast.LENGTH_SHORT).show();
                 }
             };
         }
@@ -149,7 +225,57 @@ public class ProductList extends AppCompatActivity {
         }
     }
 
+    public class mListViewAdapter extends BaseAdapter {
+        ArrayList<Map<String, Object>> data;
+        ArrayList<Integer> dataID;
+        Context context;
 
+        public mListViewAdapter(Context ctx, ArrayList<Map<String, Object>> _data, ArrayList<Integer> dataId) {
+            data = _data;
+            dataID = dataId;
+            context = ctx;
+        }
+
+        @Override
+        public int getCount() {
+            return data.size();
+        }
+        @Override
+        public Map<String, Object> getItem(int i) {
+            return data.get(i);
+        }
+        @Override
+        public long getItemId(int i) {
+            return i;
+        }
+
+        public class mListViewHolder {
+            public TextView firstLetter;
+            public TextView name;
+            public TextView price;
+        }
+
+        @Override
+        public View getView(int i, View view, ViewGroup vgrp) {
+            View temp;
+            mListViewHolder lvHolder;
+            if (view == null) {
+                temp = LayoutInflater.from(context).inflate(R.layout.product, null);
+                lvHolder = new mListViewHolder();
+                lvHolder.firstLetter = temp.findViewById(R.id.firstLetter);
+                lvHolder.name = temp.findViewById(R.id.name);
+                lvHolder.price = temp.findViewById(R.id.price);
+                temp.setTag(lvHolder);
+            } else {
+                temp = view;
+                lvHolder = (mListViewHolder) temp.getTag();
+            }
+            lvHolder.firstLetter.setText(data.get(i).get("firstLetter").toString());
+            lvHolder.name.setText(data.get(i).get("name").toString());
+            lvHolder.price.setText(data.get(i).get("price").toString());
+
+            return temp;
+        }
+    }
 
 }
-
