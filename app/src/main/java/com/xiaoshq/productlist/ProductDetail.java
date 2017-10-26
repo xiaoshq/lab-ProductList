@@ -28,7 +28,7 @@ public class ProductDetail extends AppCompatActivity {
         mApp = (app) getApplication();
         int iid = getIntent().getIntExtra("itemid", 0);
 
-        idx = mApp.p_list.idGetIndex(iid);
+        idx = mApp.product_list.idGetIndex(iid);
         price = (TextView) findViewById(R.id.detail_price);
         name = (TextView) findViewById(R.id.name);
         type = (TextView) findViewById(R.id.detail_type);
@@ -40,11 +40,11 @@ public class ProductDetail extends AppCompatActivity {
         moreInfo = (TextView) findViewById(R.id.moreInfo);
         oprations = (ListView) findViewById(R.id.detail_listview);
 
-        price.setText(mApp.p_list.dataList.get(idx).get("price").toString());
-        name.setText(mApp.p_list.dataList.get(idx).get("name").toString());
-        type.setText(mApp.p_list.dataList.get(idx).get("type").toString());
-        info.setText(mApp.p_list.dataList.get(idx).get("info").toString());
-        productImg.setImageResource(mApp.p_list.img[idx]);
+        price.setText(mApp.product_list.dataList.get(idx).get("price").toString());
+        name.setText(mApp.product_list.dataList.get(idx).get("name").toString());
+        type.setText(mApp.product_list.dataList.get(idx).get("type").toString());
+        info.setText(mApp.product_list.dataList.get(idx).get("info").toString());
+        productImg.setImageResource(mApp.product_list.img[idx]);
 
         back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -57,20 +57,21 @@ public class ProductDetail extends AppCompatActivity {
         star.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int val = mApp.p_list.collect.get(idx);
+                int val = mApp.product_list.collect.get(idx);
                 if (val == 1) val = 0;
                 else val = 1;
-                mApp.p_list.collect.set(idx, val);
+                mApp.product_list.collect.set(idx, val);
                 update_star();
             }
         });
         addtocar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mApp.s_list.addShoppingList(
-                        mApp.p_list.dataList.get(idx),
-                        mApp.p_list.productID.get(idx)
+                mApp.shopping_list.addShoppingList(
+                        mApp.product_list.dataList.get(idx),
+                        mApp.product_list.productID.get(idx)
                 );
+                mApp.lvadapter.notifyDataSetChanged();//通知adapter刷新页面
                 Toast.makeText(ProductDetail.this,
                         "商品已经添加到购物车", Toast.LENGTH_SHORT).show();
             }
@@ -80,7 +81,7 @@ public class ProductDetail extends AppCompatActivity {
     }
 
     public void update_star() {
-        if (mApp.p_list.collect.get(idx) == 0) {
+        if (mApp.product_list.collect.get(idx) == 0) {
             star.setBackgroundResource(R.drawable.empty_star);
         } else {
             star.setBackgroundResource(R.drawable.full_star);

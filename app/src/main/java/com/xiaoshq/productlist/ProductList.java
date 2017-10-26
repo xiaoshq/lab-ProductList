@@ -23,7 +23,6 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.Objects;
 
 public class ProductList extends AppCompatActivity {
 
@@ -46,8 +45,8 @@ public class ProductList extends AppCompatActivity {
         mApp = (app) getApplication();
 
         mRecyclerViewAdapter rcAdapter = new mRecyclerViewAdapter(ProductList.this,
-                R.layout.product, new ArrayList<>(mApp.p_list.dataList),
-                new ArrayList<>(mApp.p_list.productID));
+                R.layout.product, new ArrayList<>(mApp.product_list.dataList),
+                new ArrayList<>(mApp.product_list.productID));
         LinearLayoutManager LLManager = new LinearLayoutManager(ProductList.this);
         mRecyclerView.setLayoutManager(LLManager);
         LLManager.setOrientation(OrientationHelper.VERTICAL);
@@ -55,7 +54,8 @@ public class ProductList extends AppCompatActivity {
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
         final mListViewAdapter lvAdapter = new mListViewAdapter(ProductList.this,
-                mApp.s_list.dataList, mApp.s_list.productID);
+                mApp.shopping_list.dataList, mApp.shopping_list.productID);
+        mApp.lvadapter = lvAdapter;// 把引用赋给全局变量
         mListView.setAdapter(lvAdapter);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -63,7 +63,7 @@ public class ProductList extends AppCompatActivity {
                 if (pos != 0) {
                     Intent intent = new Intent();
                     intent.setClass(ProductList.this, ProductDetail.class);
-                    intent.putExtra("itemid", mApp.s_list.productID.get(pos));
+                    intent.putExtra("itemid", mApp.shopping_list.productID.get(pos));//传参
                     startActivity(intent);
                 }
             }
@@ -78,7 +78,7 @@ public class ProductList extends AppCompatActivity {
                     ad_builder
                             .setTitle("移除商品")
                             .setMessage("从购物车移除"
-                                    + mApp.s_list.dataList.get(pos).get("name").toString()
+                                    + mApp.shopping_list.dataList.get(pos).get("name").toString()
                                     + "？")
                             .setNegativeButton("取消", new DialogInterface.OnClickListener() {
                                 @Override
@@ -88,8 +88,8 @@ public class ProductList extends AppCompatActivity {
                             .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int i) {
-                                    mApp.s_list.dataList.remove(pos);
-                                    mApp.s_list.productID.remove(pos);
+                                    mApp.shopping_list.dataList.remove(pos);
+                                    mApp.shopping_list.productID.remove(pos);
                                     lvAdapter.notifyDataSetChanged();
                                 }
                             }).create().show();
@@ -119,7 +119,7 @@ public class ProductList extends AppCompatActivity {
 
     }
 
-    public interface mOnItemClickListener {
+    public interface mOnItemClickListener {//定义listener
         void onClick(int pos);
         void onLongClick(int pos);
     }
@@ -160,7 +160,7 @@ public class ProductList extends AppCompatActivity {
             };
         }
 
-        public void convert(mRecyclerViewHolder viewholder, Map<String, Object> map) {
+        public void convert(mRecyclerViewHolder viewholder, Map<String, Object> map) {//把自定义的内容取出来
             TextView firstLetter = viewholder.getView(R.id.firstLetter);
             TextView name = viewholder.getView(R.id.name);
             TextView price = viewholder.getView(R.id.price);
@@ -170,7 +170,7 @@ public class ProductList extends AppCompatActivity {
         }
 
         public class mRecyclerViewHolder extends RecyclerView.ViewHolder {
-            public SparseArray<View> v_dump;
+            public SparseArray<View> v_dump; // cache.
             public View v_this;
 
 

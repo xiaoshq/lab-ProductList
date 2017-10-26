@@ -7,13 +7,14 @@ import android.app.Application;
  */
 
 public class app extends Application {
-    public ProductData p_list;
-    public ProductData s_list;
+    public ProductData product_list;
+    public ProductData shopping_list;
+    public ProductList.mListViewAdapter lvadapter;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        p_list = new ProductData(true);
-        s_list = new ProductData(false);
+        product_list = new ProductData(true);
+        shopping_list = new ProductData(false);
     }
 }
