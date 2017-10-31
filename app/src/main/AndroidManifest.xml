@@ -10,14 +10,22 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ProductList">
+        <activity android:name=".ProductList"
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ProductDetail"></activity>
+        <activity android:name=".ProductDetail" />
+        //receiver配置文件
+        <receiver
+            android:name=".Receiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="MyStaticFilter" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

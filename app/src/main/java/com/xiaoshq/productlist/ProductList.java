@@ -3,6 +3,7 @@ package com.xiaoshq.productlist;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -21,8 +22,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Random;
 
 public class ProductList extends AppCompatActivity {
 
@@ -31,11 +37,27 @@ public class ProductList extends AppCompatActivity {
     public FloatingActionButton switchBTN;
     public boolean isShoppingCar;//false-mainpage; true-shoplist
     public app mApp;
+    public Receiver staticReceiver;
+    public Receiver dynamicReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.product_list);
+        //注册订阅者
+        EventBus.getDefault().register(this);
+
+        //静态广播用bundle和intent发送广播
+        Intent intentBroadcast1 = new Intent(Receiver.STATICACTION);
+        intentBroadcast1.putExtra("itemid", new Random().nextInt(10));
+        sendBroadcast(intentBroadcast1);
+
+        //注册动态广播，实例化IntentFilter对象
+        IntentFilter dynamicFilter = new IntentFilter();
+        dynamicFilter.addAction(Receiver.DYNAMICACTION);
+        dynamicReceiver = new Receiver();
+        //注册广播接收
+        registerReceiver(dynamicReceiver, dynamicFilter);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.productList);
         mListView = (ListView) findViewById(R.id.shoppingList);
@@ -55,11 +77,10 @@ public class ProductList extends AppCompatActivity {
 
         final mListViewAdapter lvAdapter = new mListViewAdapter(ProductList.this,
                 mApp.shopping_list.dataList, mApp.shopping_list.productID);
-        mApp.lvadapter = lvAdapter;// 把引用赋给全局变量
         mListView.setAdapter(lvAdapter);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view,int pos, long id) {
+            public void onItemClick(AdapterView<?> parent, View view, int pos, long id) {
                 if (pos != 0) {
                     Intent intent = new Intent();
                     intent.setClass(ProductList.this, ProductDetail.class);
@@ -72,7 +93,7 @@ public class ProductList extends AppCompatActivity {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view,
                                            final int pos, long id) {
-                if(pos != 0) {
+                if (pos != 0) {
                     AlertDialog.Builder ad_builder;
                     ad_builder = new AlertDialog.Builder(ProductList.this);
                     ad_builder
@@ -107,8 +128,7 @@ public class ProductList extends AppCompatActivity {
                     mRecyclerView.setVisibility(View.GONE);
                     mListView.setVisibility(View.VISIBLE);
                     switchBTN.setImageResource(R.drawable.mainpage);
-                }
-                else if(isShoppingCar == true) {//shoplist->mainpage
+                } else if (isShoppingCar == true) {//shoplist->mainpage
                     isShoppingCar = false;
                     mListView.setVisibility(View.GONE);
                     mRecyclerView.setVisibility(View.VISIBLE);
@@ -120,7 +140,9 @@ public class ProductList extends AppCompatActivity {
     }
 
     public interface mOnItemClickListener {//定义listener
+
         void onClick(int pos);
+
         void onLongClick(int pos);
     }
 
@@ -133,7 +155,7 @@ public class ProductList extends AppCompatActivity {
         mOnItemClickListener clkListener;
 
         public mRecyclerViewAdapter(Context ctx, int layoutId,
-                                    final ArrayList<Map<String,Object>> _data, final ArrayList<Integer> dataId) {
+                                    final ArrayList<Map<String, Object>> _data, final ArrayList<Integer> dataId) {
             context = ctx;
             layoutID = layoutId;
             data = _data;
@@ -182,9 +204,9 @@ public class ProductList extends AppCompatActivity {
 
             public <T extends View> T getView(int viewID) {
                 View view = v_dump.get(viewID);
-                if(view == null) {
+                if (view == null) {
                     view = v_this.findViewById(viewID);
-                    v_dump.put(viewID,view);
+                    v_dump.put(viewID, view);
                 }
                 return (T) view;
             }
@@ -240,10 +262,12 @@ public class ProductList extends AppCompatActivity {
         public int getCount() {
             return data.size();
         }
+
         @Override
         public Map<String, Object> getItem(int i) {
             return data.get(i);
         }
+
         @Override
         public long getItemId(int i) {
             return i;
@@ -275,6 +299,39 @@ public class ProductList extends AppCompatActivity {
             lvHolder.price.setText(data.get(i).get("price").toString());
 
             return temp;
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(dynamicReceiver);
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(MessageEvent event) {
+        if (event.msg.equals("refresh")) {
+            ((mListViewAdapter) mListView.getAdapter()).notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    public void onNewIntent(Intent intent) {
+        if (intent.hasExtra("isShoppingCar")) {//false-mainpage; true-shoplist
+            isShoppingCar = intent.getBooleanExtra("isShoppingCar", false);
+            if (isShoppingCar == false) {//mainpage->shoplist
+                isShoppingCar = true;
+                mRecyclerView.setVisibility(View.GONE);
+                mListView.setVisibility(View.VISIBLE);
+                switchBTN.setImageResource(R.drawable.mainpage);
+            } else if (isShoppingCar == true) {//shoplist->mainpage
+                isShoppingCar = false;
+                mListView.setVisibility(View.GONE);
+                mRecyclerView.setVisibility(View.VISIBLE);
+                switchBTN.setImageResource(R.drawable.shoplist);
+            }
+
         }
     }
 

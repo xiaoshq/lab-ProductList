@@ -9,7 +9,7 @@ import android.app.Application;
 public class app extends Application {
     public ProductData product_list;
     public ProductData shopping_list;
-    public ProductList.mListViewAdapter lvadapter;
+    public int notify_id =0;
 
     @Override
     public void onCreate() {

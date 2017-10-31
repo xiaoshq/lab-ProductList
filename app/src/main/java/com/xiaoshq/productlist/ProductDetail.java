@@ -1,9 +1,12 @@
 package com.xiaoshq.productlist;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.*;
+
+import org.greenrobot.eventbus.EventBus;
 
 public class ProductDetail extends AppCompatActivity {
 
@@ -26,7 +29,7 @@ public class ProductDetail extends AppCompatActivity {
         setContentView(R.layout.product_detail);
 
         mApp = (app) getApplication();
-        int iid = getIntent().getIntExtra("itemid", 0);
+        final int iid = getIntent().getIntExtra("itemid", 0);
 
         idx = mApp.product_list.idGetIndex(iid);
         price = (TextView) findViewById(R.id.detail_price);
@@ -71,9 +74,12 @@ public class ProductDetail extends AppCompatActivity {
                         mApp.product_list.dataList.get(idx),
                         mApp.product_list.productID.get(idx)
                 );
-                mApp.lvadapter.notifyDataSetChanged();//通知adapter刷新页面
+                EventBus.getDefault().post(new MessageEvent("refresh"));
                 Toast.makeText(ProductDetail.this,
                         "商品已经添加到购物车", Toast.LENGTH_SHORT).show();
+                Intent intentBroadcast = new Intent(Receiver.DYNAMICACTION);//发送动态广播
+                intentBroadcast.putExtra("itemid", iid);
+                sendBroadcast(intentBroadcast);
             }
         });
         final String[] s_op = {"一键下单", "分享产品", "不感兴趣", "查看更多产品促销消息"};
@@ -87,5 +93,6 @@ public class ProductDetail extends AppCompatActivity {
             star.setBackgroundResource(R.drawable.full_star);
         }
     }
+
 
 }
