@@ -37,13 +37,13 @@ public class ProductList extends AppCompatActivity {
     public FloatingActionButton switchBTN;
     public boolean isShoppingCar;//false-mainpage; true-shoplist
     public app mApp;
-    public Receiver staticReceiver;
-    public Receiver dynamicReceiver;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.product_list);
+
         //注册订阅者
         EventBus.getDefault().register(this);
 
@@ -51,13 +51,6 @@ public class ProductList extends AppCompatActivity {
         Intent intentBroadcast1 = new Intent(Receiver.STATICACTION);
         intentBroadcast1.putExtra("itemid", new Random().nextInt(10));
         sendBroadcast(intentBroadcast1);
-
-        //注册动态广播，实例化IntentFilter对象
-        IntentFilter dynamicFilter = new IntentFilter();
-        dynamicFilter.addAction(Receiver.DYNAMICACTION);
-        dynamicReceiver = new Receiver();
-        //注册广播接收
-        registerReceiver(dynamicReceiver, dynamicFilter);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.productList);
         mListView = (ListView) findViewById(R.id.shoppingList);
@@ -305,7 +298,6 @@ public class ProductList extends AppCompatActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(dynamicReceiver);
         EventBus.getDefault().unregister(this);
     }
 

@@ -1,6 +1,7 @@
 package com.xiaoshq.productlist;
 
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -22,6 +23,8 @@ public class ProductDetail extends AppCompatActivity {
     TextView moreInfo;
     ListView oprations;
     int idx;
+
+    public Receiver dynamicReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,13 +80,27 @@ public class ProductDetail extends AppCompatActivity {
                 EventBus.getDefault().post(new MessageEvent("refresh"));
                 Toast.makeText(ProductDetail.this,
                         "商品已经添加到购物车", Toast.LENGTH_SHORT).show();
-                Intent intentBroadcast = new Intent(Receiver.DYNAMICACTION);//发送动态广播
+                //发送动态广播
+                Intent intentBroadcast = new Intent(Receiver.DYNAMICACTION);
                 intentBroadcast.putExtra("itemid", iid);
                 sendBroadcast(intentBroadcast);
             }
         });
         final String[] s_op = {"一键下单", "分享产品", "不感兴趣", "查看更多产品促销消息"};
         oprations.setAdapter(new ArrayAdapter<>(ProductDetail.this, R.layout.detail_option, s_op));
+
+        //注册动态广播，实例化IntentFilter对象
+        IntentFilter dynamicFilter = new IntentFilter();
+        dynamicFilter.addAction(Receiver.DYNAMICACTION);
+        dynamicReceiver = new Receiver();
+        //注册广播接收
+        registerReceiver(dynamicReceiver, dynamicFilter);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(dynamicReceiver);
     }
 
     public void update_star() {

@@ -9,7 +9,7 @@ import android.app.Application;
 public class app extends Application {
     public ProductData product_list;
     public ProductData shopping_list;
-    public int notify_id =0;
+    public int notify_id = 0;
 
     @Override
     public void onCreate() {
