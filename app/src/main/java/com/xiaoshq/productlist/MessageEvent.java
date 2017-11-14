@@ -7,7 +7,7 @@ package com.xiaoshq.productlist;
 public class MessageEvent {
     public String msg;
 
-    public MessageEvent(String str) { 
+    public MessageEvent(String str) {
         msg = str;
     }
 }

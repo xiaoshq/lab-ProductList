@@ -25,6 +25,7 @@ public class ProductDetail extends AppCompatActivity {
     int idx;
 
     public Receiver dynamicReceiver;
+    public mWidget dynamicWidget;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +33,8 @@ public class ProductDetail extends AppCompatActivity {
         setContentView(R.layout.product_detail);
 
         mApp = (app) getApplication();
-        final int iid = getIntent().getIntExtra("itemid", 0);
+        int iid = getIntent().getIntExtra("itemid", 0);
+        final int index = mApp.product_list.idGetIndex(iid);
 
         idx = mApp.product_list.idGetIndex(iid);
         price = (TextView) findViewById(R.id.detail_price);
@@ -82,7 +84,7 @@ public class ProductDetail extends AppCompatActivity {
                         "商品已经添加到购物车", Toast.LENGTH_SHORT).show();
                 //发送动态广播
                 Intent intentBroadcast = new Intent(Receiver.DYNAMICACTION);
-                intentBroadcast.putExtra("itemid", iid);
+                intentBroadcast.putExtra("itemid", index);
                 sendBroadcast(intentBroadcast);
             }
         });
@@ -95,12 +97,17 @@ public class ProductDetail extends AppCompatActivity {
         dynamicReceiver = new Receiver();
         //注册广播接收
         registerReceiver(dynamicReceiver, dynamicFilter);
+        //动态注册widget
+        dynamicWidget = new mWidget();
+        registerReceiver(dynamicWidget, dynamicFilter);
+
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         unregisterReceiver(dynamicReceiver);
+        unregisterReceiver(dynamicWidget);
     }
 
     public void update_star() {

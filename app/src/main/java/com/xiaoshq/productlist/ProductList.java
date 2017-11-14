@@ -58,6 +58,7 @@ public class ProductList extends AppCompatActivity {
         switchBTN = (FloatingActionButton) findViewById(R.id.listSwitch);
         isShoppingCar = false;
         mApp = (app) getApplication();
+        onNewIntent(getIntent());
 
         mRecyclerViewAdapter rcAdapter = new mRecyclerViewAdapter(ProductList.this,
                 R.layout.product, new ArrayList<>(mApp.product_list.dataList),

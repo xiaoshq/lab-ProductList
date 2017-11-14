@@ -8,4 +8,5 @@
     <color name="grey">#DDDDDD</color>
     <color name="detail">#8A000000</color>
     <color name="line">#1E000000</color>
+    <color name="transparent">#33000000</color>
 </resources>
